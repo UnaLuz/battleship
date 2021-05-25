@@ -1,0 +1,10 @@
+; ignore auto generated files
+.EXE
+.MAP
+.OBJ
+.TD
+; ignore other files
+.OVL
+.HLP
+.TR
+.CFG
