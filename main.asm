@@ -5,12 +5,13 @@
 ; Porta-aviones PPPPP
 ; Nave de batalla BBBB
 ; Crucero de batalla CCC
-; Submarino BBB
+; Submarino SSS
 ; Destructor DD
 
-  posicion db "A4", 24h
+  posicion db "D3", 24h
 
   msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
+  msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
 
   impTablero db "El tablero:", 0dh, 0ah, 0dh, 0ah
 
@@ -27,9 +28,9 @@
             db "| I |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
             db "| J |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
             db "x-------------------------------------------x ", 0dh, 0ah, 24h
-  cols db 48
-  rows db 12
-  colW db 4
+  chars db 48  ;Cantidad de caracteres por fila
+  rows db 12  ;Cantidad de filas
+  colW db 4   ;Cantidad de caracteres por columna del tablero
 
 .code
 ; Importo funciones de la libreria
@@ -52,44 +53,28 @@ inicio:
     
     mov bx, offset tableroXL
 
-    mov dx, "D3"
-    mov cl, colW
-    mov ch, cols
-    call obtenerIndice
-    ; Porta aviones - PPPPP
+    mov al, "P" ;Quiero un porta-aviones
+    ; mov dx, "D3"
+    mov di, offset posicion
+    mov dh, [di+0]  ;Pongo la primer coordenada en DH (la letra)
+    mov dl, [di+1]  ;Pongo la segunda coordenada en DL (el numero)
     mov si, 0 ; poner el barco en forma horizontal
-    mov al, "P" ; Caracter que representa al barco
-    mov cx, 5 ; Barco de tamaño 3
-    mov dx, 0
-    add dl, colW ; paso el ancho de cada columna
-    call ponerBarco
+    call ubicarBarco
+    call chequearError
 
+    mov al, "B" ;Quiero una nave de batalla
     mov dx, "A9"
-    mov cl, colW
-    mov ch, cols
-    call obtenerIndice
-    ;Nave de batalla BBBB
     mov si, 1 ; poner el barco en forma vertical
-    mov al, "B" ; Caracter que representa al barco
-    mov cx, 4 ; barco de tamaño 4
-    mov dx, 0
-    add dl, cols ; cantidad de caracteres por columna
-    call ponerBarco
+    call ubicarBarco
+    call chequearError
 
-
-    ; Destructor DD
-    mov dx, "E5"
-    mov cl, colW
-    mov ch, cols
-    call obtenerIndice
-    ;Nave de batalla BBBB
-    mov si, 1 ; poner el barco en forma vertical
     mov al, "D" ; Caracter que representa al barco
-    mov cx, 2 ; barco de tamaño 4
-    mov dx, 0
-    add dl, cols ; cantidad de caracteres por columna
-    call ponerBarco
-
+    mov dx, "E5"
+    mov si, 1 ; poner el barco en forma vertical
+    call ubicarBarco
+    call chequearError
+  
+imprimir:
     ; Imprimir tablero
     mov ah, 9
     mov dx, offset impTablero
@@ -136,5 +121,97 @@ inicio:
   ret 
 Clearscreen endp
 
+; Recibo el simbolo del barco por AL
+; El offset del tablero por BX
+; Las coordenadas por DX
+;y si es horizontal u vertical por SI
+;Devuelve por CX 0 si se le pasó un simbolo de barco erroneo
+ubicarBarco proc
+;Cuido el entorno
+  
+  push ax
+  push bx
+  ; push cx
+  push dx
+  ; push si
+  push di
+  pushf
+  ; xor ax, ax
+  ; xor bx, bx
+  xor cx, cx
+  ; xor dx, dx
+  ; xor si, si
+  xor di, di
+
+  mov cl, colW
+  mov ch, chars
+  call obtenerIndice ;Me devuelve las coordenadas transformadas en un índice por DI
+
+  mov dx, 0 ; Limpio dx
+  cmp si, 0
+  je horizontal
+  add dl, ch    ; paso el largo de cada fila a DL para que se ubique de forma vertical
+  jmp simbolo
+  horizontal:
+  add dl, cl    ;paso el ancho de cada columna para que sea horizontal
+
+  simbolo:
+  mov cx, 0
+; Porta-aviones PPPPP
+; Nave de batalla BBBB
+; Crucero de batalla CCC
+; Submarino SSS
+; Destructor DD
+  cmp al, "P"
+  je portaAviones
+  cmp al, "B"
+  je naveBatlla
+  cmp al, "C"
+  je crucero
+  cmp al, "S"
+  je submarino
+  cmp al, "D"
+  je destructor
+  ;no era ninguno, es un barco erroneo
+  jmp salir
+
+  portaAviones:
+  add cx, 1   ;Tamaño 5
+  naveBatlla:
+  add cx, 1   ;Tamaño 4
+  crucero:
+  submarino:
+  add cx, 1   ;Ambos de tamaño 3
+  destructor:
+  add cx, 2   ;Tamaño 2
+
+  call ponerBarco ; Tambien le paso el indice por DI
+
+salir:
+  popf
+  pop di
+  ; pop si
+  pop dx
+  ; pop cx
+  pop bx
+  pop ax
+  ret
+ubicarBarco endp
+
+chequearError proc
+  push ax
+  push dx
+  pushf
+  cmp cx, 0
+  jne finChequeo
+  mov ah, 9
+  mov dx, offset msjError
+  int 21h
+  finChequeo:
+  popf
+  pop dx
+  pop ax
+  ret
+chequearError endp
   
 end main
