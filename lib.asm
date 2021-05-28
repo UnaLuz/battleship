@@ -7,6 +7,7 @@
   ;Declaracion de funciones publicas
   public ponerBarco
   public obtenerIndice
+  public random
   ; Recibe en BX el offset del tablero
   ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
   ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tamaño de las columnas (para ubicar horizontalmente)
@@ -18,16 +19,8 @@
   push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
   push cx
   push dx
-  ; push si
   push di
   pushf
-  ; xor ax, ax
-  ; xor bx, bx
-  ; xor cx, cx
-  ; xor dx, dx
-  ; xor si, si
-  ; xor di, di
-
   barco:
   mov byte ptr [bx + di], al ; Pongo un simbolo  en la posicion DI del tablero
 
@@ -38,7 +31,6 @@
 
   popf
   pop di
-  ; pop si
   pop dx
   pop cx
   pop bx
@@ -101,5 +93,48 @@
   pop ax
   ret
   obtenerIndice endp
+
+    ;recibo en BX el rango del número
+    ;devuelvo en DX el número random
+random proc
+    ;cuido el entorno
+    push ax
+    push cx
+    push si
+
+    call delay ;llamo al delay para que se genere un clock
+
+    mov ah, 0 ;interrupción para tener el system time
+    int 1ah ;guarda el número del clock en dx
+
+    mov ax, dx ;paso el clock a ax
+    xor dx, dx ;limpio dx
+    ;BX va a ser el divisor para generar un resto entre 0 <= r < bx
+    div bx ;divido ax por bx
+    ;como es una división en 4 bytes, el resto queda en dx
+
+    ;devuelvo el entorno
+    pop si
+    pop cx
+    pop ax
+
+    ret
+random endp
+
+;FUNCION AUXILIAR PARA RANDOM
+delay proc ;supongo que esto le da tiempo al clock para procesar un número
+        mov cx, 1
+
+empieza:
+        cmp cx, 30000
+        inc cx
+    je termina
+        inc cx
+    jmp empieza
+
+termina:
+        ret
+delay endp
+
 
 end

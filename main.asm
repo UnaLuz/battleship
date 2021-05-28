@@ -7,27 +7,24 @@
 ; Crucero de batalla CCC
 ; Submarino SSS
 ; Destructor DD
-
-  posicion db "D3", 24h
-
   msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
   msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
 
   impTablero db "El tablero:", 0dh, 0ah, 0dh, 0ah
 
-  tableroXL db "x-------------------------------------------x ", 0dh, 0ah
-            db "|   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | ", 0dh, 0ah
-            db "| A |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| B |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| C |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| D |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| E |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| F |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| G |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| H |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| I |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "| J |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-            db "x-------------------------------------------x ", 0dh, 0ah, 24h
+  tablero db "x-------------------------------------------x ", 0dh, 0ah
+          db "|   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | ", 0dh, 0ah
+          db "| A |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| B |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| C |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| D |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| E |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| F |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| G |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| H |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| I |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "| J |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
+          db "x-------------------------------------------x ", 0dh, 0ah, 24h
   chars db 48  ;Cantidad de caracteres por fila
   rows db 12  ;Cantidad de filas
   colW db 4   ;Cantidad de caracteres por columna del tablero
@@ -36,6 +33,7 @@
 ; Importo funciones de la libreria
 extrn ponerBarco:proc
 extrn obtenerIndice:proc
+extrn random:proc
 
   main proc
     mov ax, @data
@@ -51,25 +49,22 @@ inicio:
     xor si, si
     xor di, di
     
-    mov bx, offset tableroXL
+    mov bx, offset tablero
 
+    call generarFyC
     mov al, "P" ;Quiero un porta-aviones
-    ; mov dx, "D3"
-    mov di, offset posicion
-    mov dh, [di+0]  ;Pongo la primer coordenada en DH (la letra)
-    mov dl, [di+1]  ;Pongo la segunda coordenada en DL (el numero)
     mov si, 0 ; poner el barco en forma horizontal
     call ubicarBarco
     call chequearError
 
-    mov al, "B" ;Quiero una nave de batalla
     mov dx, "A9"
+    mov al, "B" ;Quiero una nave de batalla
     mov si, 1 ; poner el barco en forma vertical
     call ubicarBarco
     call chequearError
 
+    call generarFyC ;Antes usaba: mov dx, "E5"
     mov al, "D" ; Caracter que representa al barco
-    mov dx, "E5"
     mov si, 1 ; poner el barco en forma vertical
     call ubicarBarco
     call chequearError
@@ -128,20 +123,12 @@ Clearscreen endp
 ;Devuelve por CX 0 si se le pasó un simbolo de barco erroneo
 ubicarBarco proc
 ;Cuido el entorno
-  
   push ax
   push bx
-  ; push cx
   push dx
-  ; push si
   push di
   pushf
-  ; xor ax, ax
-  ; xor bx, bx
   xor cx, cx
-  ; xor dx, dx
-  ; xor si, si
-  xor di, di
 
   mov cl, colW
   mov ch, chars
@@ -190,13 +177,30 @@ ubicarBarco proc
 salir:
   popf
   pop di
-  ; pop si
   pop dx
-  ; pop cx
   pop bx
   pop ax
   ret
 ubicarBarco endp
+
+generarFyC proc
+  push ax
+  push bx
+  pushf
+
+  mov bx, 10 ;genero números entre 0 y 9 para la fila
+  call random
+  mov al, dl ;guardo la fila temporalmente
+  mov bx, 10 ;genero números entre 0 y 9 para la columna
+  call random 
+  ;tengo la columna en DL
+  mov dh, al ;pongo la fila en DH
+
+  popf
+  pop bx
+  pop ax
+  ret
+generarFyC endp
 
 chequearError proc
   push ax
