@@ -9,6 +9,7 @@
 ; Destructor DD
   msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
   msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
+  bandera db 0
 
   seed        dw 0
   weylseq     dw 0
@@ -16,26 +17,26 @@
 
   impTablero db "El tablero:", 0dh, 0ah, 0dh, 0ah
 
-  tablero db "x-------------------------------------------x ", 0dh, 0ah
-          db "|   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | ", 0dh, 0ah
-          db "| A |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| B |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| C |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| D |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| E |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| F |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| G |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| H |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| I |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "| J |   |   |   |   |   |   |   |   |   |   | ", 0dh, 0ah
-          db "x-------------------------------------------x ", 0dh, 0ah, 24h
+  tablero   db "x-------------------------------------------x ", 0dh, 0ah
+            db "|   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | ", 0dh, 0ah
+            db "| A | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| B | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| C | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| D | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| E | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| F | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| G | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| H | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| I | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "| J | . | . | . | . | . | . | . | . | . | . | ", 0dh, 0ah
+            db "x-------------------------------------------x ", 0dh, 0ah, 24h
   chars db 48  ;Cantidad de caracteres por fila
   rows db 12  ;Cantidad de filas
   colW db 4   ;Cantidad de caracteres por columna del tablero
 
 .code
 ; Importo funciones de la libreria
-extrn ponerBarco:proc
+extrn comprobar_lugar:proc
 extrn obtenerIndice:proc
 extrn seedInicial:proc
 
@@ -61,22 +62,60 @@ inicio:
     
     mov bx, offset tablero
 
+
+ubicarP:
+    mov bandera[0], 0
     call generarFyC
+    call ElijeHoV
+    mov si, ax
     mov al, "P" ;Quiero un porta-aviones
-    mov si, 0 ; poner el barco en forma horizontal
     call ubicarBarco
+    cmp bandera[0], 1
+    je ubicarP
     call chequearError
 
+ubicarB:
+    mov bandera[0], 0
     call generarFyC
+    call ElijeHoV
+    mov si, ax
     mov al, "B" ;Quiero una nave de batalla
-    mov si, 1 ; poner el barco en forma vertical
     call ubicarBarco
+    cmp bandera[0], 1
+    je ubicarB
     call chequearError
 
-    call generarFyC ;Antes usaba: mov dx, "E5"
-    mov al, "D" ; Caracter que representa al barco
-    mov si, 1 ; poner el barco en forma vertical
+ubicarD:
+    mov bandera[0], 0
+    call generarFyC
+    call ElijeHoV
+    mov si, ax
+    mov al, "D" ;Quiero un destructor
     call ubicarBarco
+    cmp bandera[0], 1
+    je ubicarD
+    call chequearError
+
+ubicarS:
+    mov bandera[0], 0
+    call generarFyC 
+    call ElijeHoV
+    mov si, ax
+    mov al, "S" ;Quiero un submarino
+    call ubicarBarco
+    cmp bandera[0], 1
+    je ubicarS
+    call chequearError
+
+ubicarC:
+    mov bandera[0], 0
+    call generarFyC
+    call ElijeHoV
+    mov si, ax
+    mov al, "C" ;Quiero un crucero
+    call ubicarBarco
+    cmp bandera[0], 1
+    je ubicarC
     call chequearError
   
 imprimir:
@@ -124,11 +163,55 @@ imprimir:
   ret 
 Clearscreen endp
 
+  ; Recibe en BX el offset del tablero
+  ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
+  ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tama√±o de las columnas (para ubicar horizontalmente)
+  ; en AL el caracter para representar el barco
+  ; y en CX el tama√±o del barco a colocar
+ponerBarco proc
+  ;Cuido el entorno
+  push ax
+  push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
+  push cx
+  push dx
+  push si
+  push di
+  pushf
+  ; xor ax, ax
+  ; xor bx, bx
+  ; xor cx, cx
+  ; xor dx, dx
+  ; xor si, si
+  ; xor di, di
+
+    mov si, offset bandera
+    call comprobar_lugar
+    cmp bandera[0], 1
+    je fin_ponerBarco
+
+  barco:
+        mov byte ptr [bx + di], al ; Pongo un simbolo  en la posicion DI del tablero
+        add di, dx ; Le sumo los caracteres que hay por fila para pasar a la fila de abajo
+        loop barco
+
+    fin_ponerBarco:
+    ; mov bandera[0], 0 ;reinicio la bandera
+  popf
+  pop di
+  pop si
+  pop dx
+  pop cx
+  pop bx
+  pop ax
+  ret
+ponerBarco endp
+
+
 ; Recibo el simbolo del barco por AL
 ; El offset del tablero por BX
 ; Las coordenadas por DX
 ;y si es horizontal u vertical por SI
-;Devuelve por CX 0 si se le pas√≥ un simbolo de barco erroneo
+;Devuelve por CX 0 si se le pas¢ un simbolo de barco erroneo
 ubicarBarco proc
 ;Cuido el entorno
   push ax
@@ -140,7 +223,7 @@ ubicarBarco proc
 
   mov cl, colW
   mov ch, chars
-  call obtenerIndice ;Me devuelve las coordenadas transformadas en un √≠ndice por DI
+  call obtenerIndice ;Me devuelve las coordenadas transformadas en un °ndice por DI
 
   mov dx, 0 ; Limpio dx
   cmp si, 0
@@ -171,14 +254,14 @@ ubicarBarco proc
   jmp salir
 
   portaAviones:
-  add cx, 1   ;Tama√±o 5
+  add cx, 1   ;Tama§o 5
   naveBatlla:
-  add cx, 1   ;Tama√±o 4
+  add cx, 1   ;Tama§o 4
   crucero:
   submarino:
-  add cx, 1   ;Ambos de tama√±o 3
+  add cx, 1   ;Ambos de tama§o 3
   destructor:
-  add cx, 2   ;Tama√±o 2
+  add cx, 2   ;Tama§o 2
 
   call ponerBarco ; Tambien le paso el indice por DI
 
@@ -244,4 +327,39 @@ generarFyC proc
     ret
 generarFyC endp
   
+;Elige de forma aleatoria si el barco ser† vertical u horizontal
+ElijeHoV proc
+  ;Recibe por AX un seed o 0 para usar el existente
+    ; por SI el offset de la secuencia de weyl
+    ;y por DI el offset del numero random anterior
+    ;devuelvo en DX la posicion random
+    ;cuido el entorno
+    push si
+    push dx
+    push bx
+    pushf
+
+    mov ax, seed
+    mov si, weylseq
+    mov di, prevRandInt
+    int 81h   ;Genero un numero random
+    ;Recibo por AX el numero random
+    mov weylseq, si
+    mov prevRandInt, ax
+
+    xor ah, ah  ;Limpio AH para la division de 8bits
+    mov bl, 2
+    div bl
+
+    mov al, ah
+    xor ah, ah
+
+    ;devuelvo el entorno
+    popf
+    pop bx
+    pop dx
+    pop si
+    ret
+ElijeHoV endp
+
 end main

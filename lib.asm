@@ -2,42 +2,63 @@
 .model small
 .stack 100h
 .data
+    ; msj_ocupado db "Lugar no disponible", 0dh, 0ah, 24h
 
 .code
   ;Declaracion de funciones publicas
-  public ponerBarco
+  public comprobar_lugar
   public obtenerIndice
   public seedInicial
 
-  ; Recibe en BX el offset del tablero
-  ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
-  ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tamaño de las columnas (para ubicar horizontalmente)
-  ; en AL el caracter para representar el barco
-  ; y en CX el tamaño del barco a colocar
-  ponerBarco proc
+comprobar_lugar proc
+  ;Por Bx espera el offset del 
+    ;creo esta función para no modificar los registros en ponerBarco
   ;Cuido el entorno
   push ax
   push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
   push cx
   push dx
+  ;push si
   push di
   pushf
-  barco:
-  mov byte ptr [bx + di], al ; Pongo un simbolo  en la posicion DI del tablero
+  ; xor ax, ax
+  ; xor bx, bx
+  ; xor cx, cx
+  ; xor dx, dx
+  ; xor si, si
+  ; xor di, di
 
-  add di, dx ; Le sumo los caracteres (por columna o por fila)
+  comprobar:
+    mov ah, byte ptr [bx + di] ;muevo lo que haya en el tablero a AH
+    cmp ah, '.' ;compruebo si hay . (vacío)
+    jne ocupado ;si es diferente . entonces hay un barco o un límite
+    ;sino, sigo comparando
+    add di, dx ; Le sumo los caracteres por columna
+    loop comprobar
+    jmp fin_comprobar_lugar ;cuando termine el loop, que termine la función
 
-  loop barco
+  ocupado:
+    mov byte ptr [si], 1 ;activo la bandera que indica que hay algo ocupado
+    ; push dx
+    ; push ax
 
+    ; mov ah, 9
+    ; mov dx, offset msj_ocupado
+    ; int 21h
+    
+    ; pop ax
+    ; pop dx
+
+    fin_comprobar_lugar:
   popf
   pop di
+  ;pop si
   pop dx
   pop cx
   pop bx
   pop ax
   ret
-  ponerBarco endp
-
+comprobar_lugar endp
 
   ; Recibo las coordenadas por DX (ej: DX = "B6")
   ; Recibo el ancho de las columnas por CL
