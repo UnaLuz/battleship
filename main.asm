@@ -7,7 +7,7 @@
 ; Crucero de batalla CCC
 ; Submarino SSS
 ; Destructor DD
-  ; msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
+  msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
   msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
 
   seed        dw 0
@@ -44,7 +44,10 @@ extrn seedInicial:proc
     mov ds, ax
 
     call seedInicial
+    ;Inicializo las tres variables con el seed porque si no hay patrones
     mov seed, ax
+    mov weylseq, ax
+    mov prevRandInt, ax
 
 inicio:
     call Clearscreen
@@ -82,25 +85,23 @@ imprimir:
     mov dx, offset impTablero
     int 21h
 
-    ; mov ah, 9
-    ; mov dx, offset msj
-    ; int 21h
+    mov ah, 9
+    mov dx, offset msj
+    int 21h
 
-    ; mov ah, 1
-    ; int 21h
+    mov ah, 1
+    int 21h
 
-    ; cmp al, "y"
-    ; jne fin
+    cmp al, "y"
+    jne fin
 
-    ; jmp inicio
+    jmp inicio
 
     fin:
 
     mov ax, 4c00h
     int 21h
   main endp
-
-
 
   Clearscreen proc
   push ax
@@ -223,18 +224,18 @@ generarFyC proc
     mov weylseq, si
     mov prevRandInt, ax
 
-    mov bl, 0Ah
-
     xor ah, ah  ;Limpio AH para la division de 8bits
+    mov bl, 0Ah
     div bl
 
-    or ah, 41h    ;Convierto a numero ascii el resto
+    add ah, 41h    ;Convierto a numero ascii el resto
     mov dh, ah
 
     xor ah, ah  ;Limpio AH para la division de 8bits
+    mov bl, 0Ah
     div bl
 
-    or ah, 30h    ;Convierto a ascii el resto
+    add ah, 30h    ;Convierto a ascii el resto
     mov dl, ah
 
     ;devuelvo el entorno
