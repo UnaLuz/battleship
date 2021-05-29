@@ -7,8 +7,12 @@
 ; Crucero de batalla CCC
 ; Submarino SSS
 ; Destructor DD
-  msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
+  ; msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
   msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
+
+  seed        dw 0
+  weylseq     dw 0
+  prevRandInt dw 0
 
   impTablero db "El tablero:", 0dh, 0ah, 0dh, 0ah
 
@@ -33,11 +37,14 @@
 ; Importo funciones de la libreria
 extrn ponerBarco:proc
 extrn obtenerIndice:proc
-extrn random:proc
+extrn seedInicial:proc
 
   main proc
     mov ax, @data
     mov ds, ax
+
+    call seedInicial
+    mov seed, ax
 
 inicio:
     call Clearscreen
@@ -57,7 +64,7 @@ inicio:
     call ubicarBarco
     call chequearError
 
-    mov dx, "A9"
+    call generarFyC
     mov al, "B" ;Quiero una nave de batalla
     mov si, 1 ; poner el barco en forma vertical
     call ubicarBarco
@@ -75,17 +82,17 @@ imprimir:
     mov dx, offset impTablero
     int 21h
 
-    mov ah, 9
-    mov dx, offset msj
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset msj
+    ; int 21h
 
-    mov ah, 1
-    int 21h
+    ; mov ah, 1
+    ; int 21h
 
-    cmp al, "y"
-    jne fin
+    ; cmp al, "y"
+    ; jne fin
 
-    jmp inicio
+    ; jmp inicio
 
     fin:
 
@@ -183,25 +190,6 @@ salir:
   ret
 ubicarBarco endp
 
-generarFyC proc
-  push ax
-  push bx
-  pushf
-
-  mov bx, 10 ;genero números entre 0 y 9 para la fila
-  call random
-  mov al, dl ;guardo la fila temporalmente
-  mov bx, 10 ;genero números entre 0 y 9 para la columna
-  call random 
-  ;tengo la columna en DL
-  mov dh, al ;pongo la fila en DH
-
-  popf
-  pop bx
-  pop ax
-  ret
-generarFyC endp
-
 chequearError proc
   push ax
   push dx
@@ -217,5 +205,40 @@ chequearError proc
   pop ax
   ret
 chequearError endp
+
+generarFyC proc
+    ;Recibe por AX un seed o 0 para usar el existente
+    ; por SI el offset de la secuencia de weyl
+    ;y por DI el offset del numero random anterior
+    ;devuelvo en DX la posicion random
+    ;cuido el entorno
+    pushf
+
+    mov ax, seed
+    mov si, weylseq
+    mov di, prevRandInt
+    int 81h   ;Genero un numero random
+    ;Recibo por AX el numero random
+    mov weylseq, si
+    mov prevRandInt, ax
+
+    mov bl, 0Ah
+
+    xor ah, ah  ;Limpio AH para la division de 8bits
+    div bl
+
+    or ah, 41h    ;Convierto a numero ascii el resto
+    mov dh, ah
+
+    xor ah, ah  ;Limpio AH para la division de 8bits
+    div bl
+
+    or ah, 30h    ;Convierto a ascii el resto
+    mov dl, ah
+
+    ;devuelvo el entorno
+    popf
+    ret
+generarFyC endp
   
 end main

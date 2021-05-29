@@ -7,7 +7,8 @@
   ;Declaracion de funciones publicas
   public ponerBarco
   public obtenerIndice
-  public random
+  public seedInicial
+
   ; Recibe en BX el offset del tablero
   ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
   ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tamaño de las columnas (para ubicar horizontalmente)
@@ -26,7 +27,6 @@
 
   add di, dx ; Le sumo los caracteres (por columna o por fila)
 
-  continuarLoop:
   loop barco
 
   popf
@@ -49,14 +49,9 @@
   push bx
   push cx
   push dx
-  ; push si
-  ; push di
   pushf
   xor ax, ax
   xor bx, bx
-  ; xor cx, cx
-  ; xor dx, dx
-  ; xor si, si
   xor di, di
 
   ;Poner un circulo en la posicion A4: x + y.cols -> 4 + 1.10 = 14 -> sería la posicion/indice del arreglo si consideramos solo 10 columnas
@@ -94,47 +89,39 @@
   ret
   obtenerIndice endp
 
-    ;recibo en BX el rango del número
-    ;devuelvo en DX el número random
-random proc
-    ;cuido el entorno
-    push ax
-    push cx
-    push si
+seedInicial proc
+  ; Genera una semilla a partir de la fecha y hora del sistema, la devuelve por AX
+  push bx
+  push cx
+  push dx
+  pushf
 
-    call delay ;llamo al delay para que se genere un clock
+  xor ax, ax
+  xor cx, cx
+  xor dx, dx
 
-    mov ah, 0 ;interrupción para tener el system time
-    int 1ah ;guarda el número del clock en dx
+  mov ah, 2ah   ;Obtengo la fecha
+  int 21h   ;CX = YY, DH = M, DL = D, AL = w (dia de la semana, ej: 00h = Domingo) 
 
-    mov ax, dx ;paso el clock a ax
-    xor dx, dx ;limpio dx
-    ;BX va a ser el divisor para generar un resto entre 0 <= r < bx
-    div bx ;divido ax por bx
-    ;como es una división en 4 bytes, el resto queda en dx
+  xor ah, ah  ;Limpio AH
 
-    ;devuelvo el entorno
-    pop si
-    pop cx
-    pop ax
+  add bx, cx
+  add bx, dx
+  add bx, ax
+  
+  mov ah, 2ch   ;Obtengo la hora, CH = Hr, CL = Min, DH = Sec, DL = 1/100sec
+  int 21h
 
-    ret
-random endp
+  add bx, cx
+  add bx, dx
+  or bx, 8101h  ;Necesito que el seed sea distinto de cero e impar en el bit menos significativo de cada byte
+  mov ax, bx
 
-;FUNCION AUXILIAR PARA RANDOM
-delay proc ;supongo que esto le da tiempo al clock para procesar un número
-        mov cx, 1
-
-empieza:
-        cmp cx, 30000
-        inc cx
-    je termina
-        inc cx
-    jmp empieza
-
-termina:
-        ret
-delay endp
-
+  popf
+  pop dx
+  pop cx
+  pop bx
+  ret
+seedInicial endp
 
 end
