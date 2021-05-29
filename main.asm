@@ -85,17 +85,17 @@ imprimir:
     mov dx, offset impTablero
     int 21h
 
-    mov ah, 9
-    mov dx, offset msj
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset msj
+    ; int 21h
 
-    mov ah, 1
-    int 21h
+    ; mov ah, 1
+    ; int 21h
 
-    cmp al, "y"
-    jne fin
+    ; cmp al, "y"
+    ; jne fin
 
-    jmp inicio
+    ; jmp inicio
 
     fin:
 
