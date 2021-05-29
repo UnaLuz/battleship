@@ -212,6 +212,7 @@ generarFyC proc
     ;y por DI el offset del numero random anterior
     ;devuelvo en DX la posicion random
     ;cuido el entorno
+    push bx
     pushf
 
     mov ax, seed
@@ -238,6 +239,7 @@ generarFyC proc
 
     ;devuelvo el entorno
     popf
+    pop bx
     ret
 generarFyC endp
   
