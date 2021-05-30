@@ -3,8 +3,10 @@
 *.MAP
 *.OBJ
 *.TD
+*.COM
 ; ignore other files
 *.OVL
 *.HLP
 *.TR
 *.CFG
+.vscode/
