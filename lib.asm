@@ -18,15 +18,8 @@ comprobar_lugar proc
   push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
   push cx
   push dx
-  ;push si
   push di
   pushf
-  ; xor ax, ax
-  ; xor bx, bx
-  ; xor cx, cx
-  ; xor dx, dx
-  ; xor si, si
-  ; xor di, di
 
   comprobar:
     mov ah, byte ptr [bx + di] ;muevo lo que haya en el tablero a AH
@@ -52,7 +45,6 @@ comprobar_lugar proc
     fin_comprobar_lugar:
   popf
   pop di
-  ;pop si
   pop dx
   pop cx
   pop bx
@@ -101,8 +93,6 @@ comprobar_lugar endp
   add di, ax ; Sumo a DI (la posicion en X) lo que tengo en AL (la posicion en y por la cant de columnas)
 
   popf
-  ; pop di ; Devuelvo el indice correspondiente por DI
-  ; pop si
   pop dx
   pop cx
   pop bx
