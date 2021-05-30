@@ -19,6 +19,10 @@ Una version light del juego de Batalla Naval hecho en Assembly para DOS.
 
   No podrá escoger una posición donde ya se haya efectuado un disparo, si lo hace se mostrará por pantalla un mensaje de error.
 
-## TODOS
+## Integrantes del grupo
 
-  Todo kjajaja
+  - Vaquero	David
+  - Paleari	Carolina Denisse
+  - Castro Daiana
+  - Amarilla Leandro
+  - Cucarella	Maria Luz

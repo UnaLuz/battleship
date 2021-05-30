@@ -137,10 +137,13 @@ seedInicial proc
 seedInicial endp
 
 ;Recibe un indice por DI
-; y el offset del tablero por BX
+; el offset del tablero visible por BX
+; y el offset del tablero con los barcos en SI
 disparar proc
   push di
   push bx
+  push si
+  push cx
   pushf
 
   ;Me fijo si es agua
@@ -148,15 +151,20 @@ disparar proc
   je agua
 
   ;No es agua, le dio a un barco
-  mov byte ptr [bx + di], "+"
+  mov cl, "#"
   jmp terminar
 
   agua:
-  mov byte ptr [bx + di], "*"
+  mov cl, "*"
 
   terminar:
+  mov byte ptr [bx + di], cl
+  mov bx, si ;Por alguna razon no me deja usar SI directamente
+  mov byte ptr [bx + di], cl
 
   popf
+  pop cx
+  pop si
   pop bx
   pop di
   ret
