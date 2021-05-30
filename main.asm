@@ -37,6 +37,7 @@
 extrn comprobar_lugar:proc
 extrn obtenerIndice:proc
 extrn seedInicial:proc
+extrn disparar:proc
 
   main proc
     mov ax, @data
@@ -149,8 +150,8 @@ checkLetra:
     jb malPos
     cmp al, "J"
     ja malPos
-    ;Es una letra valida asi que la guardo el CH
-    mov ch, al
+    ;Es una letra valida asi que la guardo el DH
+    mov dh, al
     ;Leo el siguiente caracter
     mov ah, 1
     int 21h
@@ -159,10 +160,15 @@ checkLetra:
     jb malPos
     cmp al, "9"
     ja malPos
-    ;Es un numero valido asi que lo guardo en CL
-    mov cl, al
+    ;Es un numero valido asi que lo guardo en DL
+    mov dl, al
+    ;Ahora tengo la posicion guardada en DX
 
-    ;Ahora tengo la posicion guardada en CX
+    mov cl, colW
+    mov ch, chars
+    call obtenerIndice
+    mov bx, offset tablero
+    call disparar
     ;Espero otra tecla sin imprimir en pantalla para que pueda leer la posicion ingresada
     mov ah, 08h
     int 21h
@@ -279,7 +285,7 @@ ubicarBarco proc
 
   mov cl, colW
   mov ch, chars
-  call obtenerIndice ;Me devuelve las coordenadas transformadas en un �ndice por DI
+  call obtenerIndice ;Me devuelve las coordenadas transformadas en un indice por DI
 
   mov dx, 0 ; Limpio dx
   cmp si, 0

@@ -9,6 +9,7 @@
   public comprobar_lugar
   public obtenerIndice
   public seedInicial
+  public disparar
 
 comprobar_lugar proc
   ;Por Bx espera el offset del 
@@ -134,5 +135,31 @@ seedInicial proc
   pop bx
   ret
 seedInicial endp
+
+;Recibe un indice por DI
+; y el offset del tablero por BX
+disparar proc
+  push di
+  push bx
+  pushf
+
+  ;Me fijo si es agua
+  cmp byte ptr [bx + di], "."
+  je agua
+
+  ;No es agua, le dio a un barco
+  mov byte ptr [bx + di], "+"
+  jmp terminar
+
+  agua:
+  mov byte ptr [bx + di], "*"
+
+  terminar:
+
+  popf
+  pop bx
+  pop di
+  ret
+disparar endp
 
 end
