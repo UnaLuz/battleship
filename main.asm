@@ -2,19 +2,25 @@
 .model small
 .stack 100h
 .data
-  msj db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
-  msjError db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
-  msjIngreso db "Ingrese una posicion para atacar: ", 24h
-  msjMalPos db "Esa no es una posicion correcta, ingrese <Esc> para salir o <Enter> para seguir", 0dh, 0ah, 24h
+  ;msj         db "Ingrese Y para continuar, otra tecla para salir", 0dh, 0ah, 24h
+  msjInicio   db "Las posiciones se determinan por la fila (A-J) y despues por la columna (0-9)", 0dh, 0ah, 24h
+  msjIntentos db "Intentos disponibles: ", 24h
+  msjError    db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
+  msjIngreso  db "Ingrese una posicion para atacar: ", 24h
+  msjMalPos   db "Esa no es una posicion correcta, ingrese <Esc> para salir o <Enter> para seguir", 0dh, 0ah, 24h
+  msjPosErr   db "Ya se disparo en esa posicion", 0dh, 0ah, 24h
+  msjFin      db 0dh, 0ah, "Fin del juego", 0dh, 0ah, 24h
   salto db 0dh, 0ah, 24h
   bandera db 0
+  Intentos db 50
+  IntentosAscii db "50", 0dh, 0ah, 24h
 
   seed        dw 0
   weylseq     dw 0
   prevRandInt dw 0
 
-  impTablero db "El tablero:", 0dh, 0ah, 0dh, 0ah
-
+  impTablero  db "El tablero:", 0dh, 0ah
+  ;Este es el tablero que v‚ el usuario
   tablero   db "x----------------------x", 0dh, 0ah
             db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
             db "|a . . . . . . . . . . |", 0dh, 0ah
@@ -28,6 +34,21 @@
             db "|i . . . . . . . . . . |", 0dh, 0ah
             db "|j . . . . . . . . . . |", 0dh, 0ah
             db "x----------------------x", 0dh, 0ah, 24h
+
+  ;Este talbero seria el que hay que editar con los barcos
+  tableroMaquina  db "x----------------------x", 0dh, 0ah
+                  db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
+                  db "|a . . . . . . . . . . |", 0dh, 0ah
+                  db "|b . . . . . . . . . . |", 0dh, 0ah
+                  db "|c . . . . . . . . . . |", 0dh, 0ah
+                  db "|d . . . . . . . . . . |", 0dh, 0ah
+                  db "|e . . . . . . . . . . |", 0dh, 0ah
+                  db "|f . . . . . . . . . . |", 0dh, 0ah
+                  db "|g . . . . . . . . . . |", 0dh, 0ah
+                  db "|h . . . . . . . . . . |", 0dh, 0ah
+                  db "|i . . . . . . . . . . |", 0dh, 0ah
+                  db "|j . . . . . . . . . . |", 0dh, 0ah
+                  db "x----------------------x ", 24h
   chars db 26  ;Cantidad de caracteres por fila
   rows db 12  ;Cantidad de filas
   colW db 2   ;Cantidad de caracteres por columna del tablero
@@ -38,6 +59,7 @@ extrn comprobar_lugar:proc
 extrn obtenerIndice:proc
 extrn seedInicial:proc
 extrn disparar:proc
+extrn regToAscii:proc
 
   main proc
     mov ax, @data
@@ -58,7 +80,7 @@ inicio:
     xor si, si
     xor di, di
     
-    mov bx, offset tablero
+    mov bx, offset tableroMaquina
 
 ; Porta-aviones PPPPP
 ubicarP:
@@ -121,14 +143,26 @@ ubicarC:
     call chequearError
   
 imprimir:
+    mov ah, 9
+    mov dx, offset msjIntentos
+    int 21h
+
+    mov bx, offset IntentosAscii
+    mov al, Intentos[0]
+    call regToAscii
+
+    mov ah, 9
+    mov dx, offset IntentosAscii
+    int 21h
+
     ; Imprimir tablero
     mov ah, 9
     mov dx, offset impTablero
     int 21h
 
-    mov ah, 9
-    mov dx, offset salto
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset salto
+    ; int 21h
 
     ;Pido que ingrese una posicion a atacar
     mov ah, 9
@@ -167,8 +201,28 @@ checkLetra:
     mov cl, colW
     mov ch, chars
     call obtenerIndice
-    mov bx, offset tablero
+    mov si, offset tablero
+    mov bx, offset tableroMaquina
     call disparar
+    ; Chequeo si el disparo fue exitoso o no
+    cmp al, 0   ;Hubo un error, no se puede disparar en esa posicion
+    je nuevoIntento
+    
+    dec Intentos
+    cmp Intentos, 0
+    je fin
+
+    jmp continuar
+
+    nuevoIntento:
+    mov ah, 9
+    mov dx, offset salto
+    int 21h
+    mov ah, 9
+    mov dx, offset msjPosErr
+    int 21h
+    
+    continuar:
     ;Espero otra tecla sin imprimir en pantalla para que pueda leer la posicion ingresada
     mov ah, 08h
     int 21h
@@ -206,6 +260,9 @@ checkLetra:
     jmp imprimir
 
     fin:
+    mov ah, 9
+    mov dx, offset msjFin
+    int 21h
     mov ax, 4c00h
     int 21h
   main endp
