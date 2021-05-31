@@ -10,6 +10,7 @@
   public obtenerIndice
   public seedInicial
   public disparar
+  public regToAscii
 
 comprobar_lugar proc
   ;Por Bx espera el offset del 
@@ -139,6 +140,10 @@ seedInicial endp
 ;Recibe un indice por DI
 ; el offset del tablero visible por BX
 ; y el offset del tablero con los barcos en SI
+;Devuelve por AL si el disparo fue exitoso o no
+; AL = 0 --> Error, ya se disparo en esa posicion
+; AL = 1 --> Disparo cae en agua
+; AL = 2 --> Disparo exitoso, le dio a un barco
 disparar proc
   push di
   push bx
@@ -150,18 +155,29 @@ disparar proc
   cmp byte ptr [bx + di], "."
   je agua
 
+  cmp byte ptr [bx + di], "*"   ;Ya se disparó en esa posicion
+  je noDisparo
+
+  cmp byte ptr [bx + di], "#"   ;Hay restos de un barco roto (ya se disparó ahí)
+  je noDisparo
   ;No es agua, le dio a un barco
   mov cl, "#"
-  jmp terminar
+  mov al, 2
+  jmp disparo
+
+  noDisparo:
+  mov al, 0
+  jmp terminarDisparo
 
   agua:
   mov cl, "*"
+  mov al, 1
 
-  terminar:
+  disparo:
   mov byte ptr [bx + di], cl
   mov bx, si ;Por alguna razon no me deja usar SI directamente
   mov byte ptr [bx + di], cl
-
+terminarDisparo:
   popf
   pop cx
   pop si
@@ -169,5 +185,31 @@ disparar proc
   pop di
   ret
 disparar endp
+
+; recibe en AL el numero a convertir
+; recibe en BX el offset de la variable (de dos caracteres/digitos)
+regToAscii proc
+  push ax
+  push bx
+  push cx
+  pushf
+
+  xor ah, ah
+  ;GENERO DECENA
+  mov cl, 10    ; guardo el valor por el que voy a dividir en cl
+  div cl        ; Divido por 10 para obtener la decena
+  add al, 30h   ;Paso a ascii
+  mov [bx+0], al  ;Lo pongo en el bit mas significativo
+
+  ;GENERO UNIDAD
+  add ah, 30h   ;Paso el resto a ascii
+  mov [bx+1], ah   ;Lo guardo en el byte menos significativo
+
+  popf
+  pop cx
+  pop bx
+  pop ax
+  ret
+regToAscii endp
 
 end
