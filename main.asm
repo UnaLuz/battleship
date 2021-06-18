@@ -19,38 +19,43 @@
   weylseq     dw 0
   prevRandInt dw 0
 
-  impTablero  db "El tablero:", 0dh, 0ah
-  ;Este es el tablero que v‚ el usuario
-  tablero   db "x----------------------x", 0dh, 0ah
-            db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
-            db "|a . . . . . . . . . . |", 0dh, 0ah
-            db "|b . . . . . . . . . . |", 0dh, 0ah
-            db "|c . . . . . . . . . . |", 0dh, 0ah
-            db "|d . . . . . . . . . . |", 0dh, 0ah
-            db "|e . . . . . . . . . . |", 0dh, 0ah
-            db "|f . . . . . . . . . . |", 0dh, 0ah
-            db "|g . . . . . . . . . . |", 0dh, 0ah
-            db "|h . . . . . . . . . . |", 0dh, 0ah
-            db "|i . . . . . . . . . . |", 0dh, 0ah
-            db "|j . . . . . . . . . . |", 0dh, 0ah
-            db "x----------------------x", 0dh, 0ah, 24h
+  impTablero  db "El tablero:", 0dh, 0ah, 0dh, 0ah,
+              db "       Enemigo                     Usuario", 0dh, 0ah
 
-  ;Este talbero seria el que hay que editar con los barcos
-  tableroMaquina  db "x----------------------x", 0dh, 0ah
-                  db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
-                  db "|a . . . . . . . . . . |", 0dh, 0ah
-                  db "|b . . . . . . . . . . |", 0dh, 0ah
-                  db "|c . . . . . . . . . . |", 0dh, 0ah
-                  db "|d . . . . . . . . . . |", 0dh, 0ah
-                  db "|e . . . . . . . . . . |", 0dh, 0ah
-                  db "|f . . . . . . . . . . |", 0dh, 0ah
-                  db "|g . . . . . . . . . . |", 0dh, 0ah
-                  db "|h . . . . . . . . . . |", 0dh, 0ah
-                  db "|i . . . . . . . . . . |", 0dh, 0ah
-                  db "|j . . . . . . . . . . |", 0dh, 0ah
+  ;Este es el tablero que ve el usuario
+  tablero   db "x----------------------x    x----------------------x", 0dh, 0ah ;54 caracteres por fila
+            db "|  0 1 2 3 4 5 6 7 8 9 |    |  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
+            db "|a . . . . . . . . . . |    |a . . . . . . . . . . |", 0dh, 0ah
+            db "|b . . . . . . . . . . |    |b . . . . . . . . . . |", 0dh, 0ah
+            db "|c . . . . . . . . . . |    |c . . . . . . . . . . |", 0dh, 0ah
+            db "|d . . . . . . . . . . |    |d . . . . . . . . . . |", 0dh, 0ah
+            db "|e . . . . . . . . . . |    |e . . . . . . . . . . |", 0dh, 0ah
+            db "|f . . . . . . . . . . |    |f . . . . . . . . . . |", 0dh, 0ah
+            db "|g . . . . . . . . . . |    |g . . . . . . . . . . |", 0dh, 0ah
+            db "|h . . . . . . . . . . |    |h . . . . . . . . . . |", 0dh, 0ah
+            db "|i . . . . . . . . . . |    |i . . . . . . . . . . |", 0dh, 0ah
+            db "|j . . . . . . . . . . |    |j . . . . . . . . . . |", 0dh, 0ah
+            db "x----------------------x    x----------------------x", 0dh, 0ah, 24h
+            ;Al segundo tablero habrÃ­a que sumarle 31 para posicionarse en la primera columna
+
+  ;Este tablero serÃ­a el que hay que editar con los barcos
+  tableroMaquina  db "x----------------------x ", 0dh, 0ah
+                  db "|  0 1 2 3 4 5 6 7 8 9 | ", 0dh, 0ah
+                  db "|a . . . . . . . . . . | ", 0dh, 0ah
+                  db "|b . . . . . . . . . . | ", 0dh, 0ah
+                  db "|c . . . . . . . . . . | ", 0dh, 0ah
+                  db "|d . . . . . . . . . . | ", 0dh, 0ah
+                  db "|e . . . . . . . . . . | ", 0dh, 0ah
+                  db "|f . . . . . . . . . . | ", 0dh, 0ah
+                  db "|g . . . . . . . . . . | ", 0dh, 0ah
+                  db "|h . . . . . . . . . . | ", 0dh, 0ah
+                  db "|i . . . . . . . . . . | ", 0dh, 0ah
+                  db "|j . . . . . . . . . . | ", 0dh, 0ah
                   db "x----------------------x ", 24h
-  chars db 26  ;Cantidad de caracteres por fila
-  rows db 12  ;Cantidad de filas
+
+  
+  chars db 54  ;Cantidad de caracteres por fila
+  espacio db 28  ;Cantidad caracteres antes de la primer columna del tablero usuario
   colW db 2   ;Cantidad de caracteres por columna del tablero
 
 .code
@@ -81,6 +86,10 @@ inicio:
     xor di, di
     
     mov bx, offset tableroMaquina
+
+    ; mov bx, offset tablero
+    ; add bl, espacio[0]
+
 
 ; Porta-aviones PPPPP
 ubicarP:
@@ -160,9 +169,9 @@ imprimir:
     mov dx, offset impTablero
     int 21h
 
-    ; mov ah, 9
-    ; mov dx, offset salto
-    ; int 21h
+    ;mov ah, 9
+    ;mov dx, offset titulo
+    ;int 21h
 
     ;Pido que ingrese una posicion a atacar
     mov ah, 9
@@ -228,7 +237,7 @@ checkLetra:
     int 21h
     jmp seguir
 
-    ;No ingres¢ una posicion v lida
+    ;No ingresï¿½ una posicion vï¿½lida
   malPos:
     mov ah, 9
     mov dx, offset salto
@@ -242,13 +251,13 @@ checkLetra:
     ;Espero confirmacion del usuario a seguir o salir
     mov ah, 08h   ;Leer sin eco en la pantalla
     int 21h
-    ;Si apret¢ <Esc> termino del programa
+    ;Si apretï¿½ <Esc> termino del programa
     cmp al, 1Bh
     je fin
-    ;Si apret¢ <Enter> vuelvo a pedir que ingrese una posicion valida
+    ;Si apretï¿½ <Enter> vuelvo a pedir que ingrese una posicion valida
     cmp al, 0dh
     je seguir
-    ;Si ingres¢ cualquier otra cosa sigo esperando
+    ;Si ingresï¿½ cualquier otra cosa sigo esperando
     jmp leerTecla
 
   seguir:
