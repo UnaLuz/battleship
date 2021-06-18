@@ -11,54 +11,16 @@
   public seedInicial
   public disparar
   public regToAscii
+  public chequearError
+  public ubicarBarco
+  public ponerBarco
 
-comprobar_lugar proc
-  ;Por Bx espera el offset del 
-    ;creo esta función para no modificar los registros en ponerBarco
-  ;Cuido el entorno
-  push ax
-  push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
-  push cx
-  push dx
-  push di
-  pushf
-
-  comprobar:
-    mov ah, byte ptr [bx + di] ;muevo lo que haya en el tablero a AH
-    cmp ah, '.' ;compruebo si hay . (vacío)
-    jne ocupado ;si es diferente . entonces hay un barco o un límite
-    ;sino, sigo comparando
-    add di, dx ; Le sumo los caracteres por columna
-    loop comprobar
-    jmp fin_comprobar_lugar ;cuando termine el loop, que termine la función
-
-  ocupado:
-    mov byte ptr [si], 1 ;activo la bandera que indica que hay algo ocupado
-    ; push dx
-    ; push ax
-
-    ; mov ah, 9
-    ; mov dx, offset msj_ocupado
-    ; int 21h
-    
-    ; pop ax
-    ; pop dx
-
-    fin_comprobar_lugar:
-  popf
-  pop di
-  pop dx
-  pop cx
-  pop bx
-  pop ax
-  ret
-comprobar_lugar endp
 
   ; Recibo las coordenadas por DX (ej: DX = "B6")
   ; Recibo el ancho de las columnas por CL
   ; Recibo el largo de las filas por CH
-  ;Devuelvo el índice correspondiente por DI
-  obtenerIndice proc
+  ; Devuelvo el índice correspondiente por DI
+obtenerIndice proc
   ;Cuido el entorno
   push ax
   push bx
@@ -100,7 +62,7 @@ comprobar_lugar endp
   pop bx
   pop ax
   ret
-  obtenerIndice endp
+obtenerIndice endp
 
 seedInicial proc
   ; Genera una semilla a partir de la fecha y hora del sistema, la devuelve por AX
@@ -138,8 +100,8 @@ seedInicial proc
 seedInicial endp
 
 ;Recibe un indice por DI
-; el offset del tablero visible por BX
-; y el offset del tablero con los barcos en SI
+; el offset del tableroMaquina por BX
+; y el offset del tablero visible al usuario en SI
 ;Devuelve por AL si el disparo fue exitoso o no
 ; AL = 0 --> Error, ya se disparo en esa posicion
 ; AL = 1 --> Disparo cae en agua
@@ -175,7 +137,7 @@ disparar proc
 
   disparo:
   mov byte ptr [bx + di], cl
-  mov bx, si ;Por alguna razon no me deja usar SI directamente
+  mov bx, si
   mov byte ptr [bx + di], cl
 terminarDisparo:
   popf
@@ -211,5 +173,155 @@ regToAscii proc
   pop ax
   ret
 regToAscii endp
+
+
+chequearError proc
+  push ax
+  push dx
+  pushf
+  cmp cx, 0
+  jne finChequeo
+  mov ah, 9
+  int 21h
+  finChequeo:
+  popf
+  pop dx
+  pop ax
+  ret
+chequearError endp
+
+; Recibo el simbolo del barco por AL
+; El offset del tablero por BX
+; Las coordenadas por DX
+; y si es horizontal u vertical por SI
+; Devuelve por CX 0 si se le pasa un simbolo de barco erroneo, si no devuelve el tamanio del barco
+; el indice por DI
+; en DX los caracteres por fila o columna, segun si es vertical u horizontal
+ubicarBarco proc
+;Cuido el entorno
+  push ax
+  push bx
+  push si
+  pushf
+
+  call obtenerIndice ;Me devuelve las coordenadas transformadas en un indice por DI
+
+  mov dx, 0 ; Limpio dx
+  cmp si, 0
+  je horizontal
+  add dl, ch    ; paso el largo de cada fila a DL para que se ubique de forma vertical
+  jmp simbolo
+  horizontal:
+  add dl, cl    ;paso el ancho de cada columna para que sea horizontal
+
+  simbolo:
+  mov cx, 0
+; Porta-aviones PPPPP
+; Nave de batalla BBBB
+; Crucero de batalla CCC
+; Submarino SSS
+; Destructor DD
+  cmp al, "P"
+  je portaAviones
+  cmp al, "B"
+  je naveBatlla
+  cmp al, "C"
+  je crucero
+  cmp al, "S"
+  je submarino
+  cmp al, "D"
+  je destructor
+  ;no era ninguno, es un barco erroneo
+  jmp salir
+
+  portaAviones:
+  add cx, 1   ;Tamanio 5
+  naveBatlla:
+  add cx, 1   ;Tamanio 4
+  crucero:
+  submarino:
+  add cx, 1   ;Ambos de tamanio 3
+  destructor:
+  add cx, 2   ;Tamanio 2
+
+salir:
+  popf
+  pop si
+  pop bx
+  pop ax
+  ret
+ubicarBarco endp
+
+  ; Recibe AL el caracter para representar el barco
+  ; en BX el offset del tablero
+  ; Por SI el offset de la bandera
+  ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
+  ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tamanio de las columnas (para ubicar horizontalmente)
+  ; y en CX el tamanio del barco a colocar
+ponerBarco proc
+  ;Cuido el entorno
+  push ax
+  push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
+  push cx
+  push dx
+  push si
+  push di
+  pushf
+
+  call comprobar_lugar
+  cmp byte ptr [si], 1
+  je fin_ponerBarco
+
+  barco:
+    mov byte ptr [bx + di], al ; Pongo un simbolo  en la posicion DI del tablero
+    add di, dx ; Le sumo los caracteres que hay por fila para pasar a la fila de abajo
+    loop barco
+
+  fin_ponerBarco:
+  popf
+  pop di
+  pop si
+  pop dx
+  pop cx
+  pop bx
+  pop ax
+  ret
+ponerBarco endp
+
+comprobar_lugar proc
+  ;Por Bx espera el offset del tablero
+  ; por DX la cantidad de caracteres por fila o columna.
+    ;creo esta función para no modificar los registros en ponerBarco
+  ;Cuido el entorno
+  push ax
+  push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
+  push cx
+  push dx
+  push di
+  push si
+  pushf
+
+  comprobar:
+    mov ah, byte ptr [bx + di] ;muevo lo que haya en el tablero a AH
+    cmp ah, '.' ;compruebo si hay . (vacío)
+    jne ocupado ;si es diferente . entonces hay un barco o un límite
+    ;sino, sigo comparando
+    add di, dx ; Le sumo los caracteres por columna
+    loop comprobar
+    jmp fin_comprobar_lugar ;cuando termine el loop, que termine la función
+
+  ocupado:
+    mov byte ptr [si], 1 ;activo la bandera que indica que hay algo ocupado
+
+  fin_comprobar_lugar:
+  popf
+  pop si
+  pop di
+  pop dx
+  pop cx
+  pop bx
+  pop ax
+  ret
+comprobar_lugar endp
 
 end

@@ -6,56 +6,69 @@
   msjInicio   db "Las posiciones se determinan por la fila (A-J) y despues por la columna (0-9)", 0dh, 0ah, 24h
   msjIntentos db "Intentos disponibles: ", 24h
   msjError    db "No se pudo ubicar la nave, simbolo incorrecto", 0dh, 0ah, 24h
-  msjIngreso  db "Ingrese una posicion para atacar: ", 24h
+  msjBarcos   db "Ubique el barco ", 24h
+  msjTam      db ", su tamanio es ", 24h
+  msjIngreso  db "Ingrese una coordenada desde la fila (A-J) y la columna (0-9): ", 24h
+  msjOrientacion db "Elija 0 (para horizontal) u otro caracter (para vertical): ", 24h
   msjMalPos   db "Esa no es una posicion correcta, ingrese <Esc> para salir o <Enter> para seguir", 0dh, 0ah, 24h
   msjPosErr   db "Ya se disparo en esa posicion", 0dh, 0ah, 24h
   msjFin      db 0dh, 0ah, "Fin del juego", 0dh, 0ah, 24h
   salto db 0dh, 0ah, 24h
   bandera db 0
-  Intentos db 50
-  IntentosAscii db "50", 0dh, 0ah, 24h
+  Intentos db 17
+  IntentosAscii db "17", 0dh, 0ah, 24h
 
   seed        dw 0
   weylseq     dw 0
   prevRandInt dw 0
 
-  impTablero  db "El tablero:", 0dh, 0ah, 0dh, 0ah,
-              db "       Enemigo                     Usuario", 0dh, 0ah
+  ; impTablero  db "Tableros:", 0dh, 0ah, 0dh, 0ah
 
-  ;Este es el tablero que ve el usuario
-  tablero   db "x----------------------x    x----------------------x", 0dh, 0ah ;54 caracteres por fila
-            db "|  0 1 2 3 4 5 6 7 8 9 |    |  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
-            db "|a . . . . . . . . . . |    |a . . . . . . . . . . |", 0dh, 0ah
-            db "|b . . . . . . . . . . |    |b . . . . . . . . . . |", 0dh, 0ah
-            db "|c . . . . . . . . . . |    |c . . . . . . . . . . |", 0dh, 0ah
-            db "|d . . . . . . . . . . |    |d . . . . . . . . . . |", 0dh, 0ah
-            db "|e . . . . . . . . . . |    |e . . . . . . . . . . |", 0dh, 0ah
-            db "|f . . . . . . . . . . |    |f . . . . . . . . . . |", 0dh, 0ah
-            db "|g . . . . . . . . . . |    |g . . . . . . . . . . |", 0dh, 0ah
-            db "|h . . . . . . . . . . |    |h . . . . . . . . . . |", 0dh, 0ah
-            db "|i . . . . . . . . . . |    |i . . . . . . . . . . |", 0dh, 0ah
-            db "|j . . . . . . . . . . |    |j . . . . . . . . . . |", 0dh, 0ah
-            db "x----------------------x    x----------------------x", 0dh, 0ah, 24h
-            ;Al segundo tablero habrÃ­a que sumarle 31 para posicionarse en la primera columna
+  ;Estos son los tableros que ve el usuario
+  tablero   db "x--------Enemy---------x", 0dh, 0ah
+            db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
+            db "|a . . . . . . . . . . |", 0dh, 0ah
+            db "|b . . . . . . . . . . |", 0dh, 0ah
+            db "|c . . . . . . . . . . |", 0dh, 0ah
+            db "|d . . . . . . . . . . |", 0dh, 0ah
+            db "|e . . . . . . . . . . |", 0dh, 0ah
+            db "|f . . . . . . . . . . |", 0dh, 0ah
+            db "|g . . . . . . . . . . |", 0dh, 0ah
+            db "|h . . . . . . . . . . |", 0dh, 0ah
+            db "|i . . . . . . . . . . |", 0dh, 0ah
+            db "|j . . . . . . . . . . |", 0dh, 0ah
+tableroUser db "x--------Player--------x", 0dh, 0ah
+            db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
+            db "|a . . . . . . . . . . |", 0dh, 0ah
+            db "|b . . . . . . . . . . |", 0dh, 0ah
+            db "|c . . . . . . . . . . |", 0dh, 0ah
+            db "|d . . . . . . . . . . |", 0dh, 0ah
+            db "|e . . . . . . . . . . |", 0dh, 0ah
+            db "|f . . . . . . . . . . |", 0dh, 0ah
+            db "|g . . . . . . . . . . |", 0dh, 0ah
+            db "|h . . . . . . . . . . |", 0dh, 0ah
+            db "|i . . . . . . . . . . |", 0dh, 0ah
+            db "|j . . . . . . . . . . |", 0dh, 0ah, 24h
+            ; db "x----------------------x", 24h
+  ;Este tablero seria el que hay que editar con los barcos random
 
-  ;Este tablero serÃ­a el que hay que editar con los barcos
-  tableroMaquina  db "x----------------------x ", 0dh, 0ah
-                  db "|  0 1 2 3 4 5 6 7 8 9 | ", 0dh, 0ah
-                  db "|a . . . . . . . . . . | ", 0dh, 0ah
-                  db "|b . . . . . . . . . . | ", 0dh, 0ah
-                  db "|c . . . . . . . . . . | ", 0dh, 0ah
-                  db "|d . . . . . . . . . . | ", 0dh, 0ah
-                  db "|e . . . . . . . . . . | ", 0dh, 0ah
-                  db "|f . . . . . . . . . . | ", 0dh, 0ah
-                  db "|g . . . . . . . . . . | ", 0dh, 0ah
-                  db "|h . . . . . . . . . . | ", 0dh, 0ah
-                  db "|i . . . . . . . . . . | ", 0dh, 0ah
-                  db "|j . . . . . . . . . . | ", 0dh, 0ah
-                  db "x----------------------x ", 24h
+  tableroMaquina  db "x----------------------x", 0dh, 0ah
+                  db "|  0 1 2 3 4 5 6 7 8 9 |", 0dh, 0ah
+                  db "|a . . . . . . . . . . |", 0dh, 0ah
+                  db "|b . . . . . . . . . . |", 0dh, 0ah
+                  db "|c . . . . . . . . . . |", 0dh, 0ah
+                  db "|d . . . . . . . . . . |", 0dh, 0ah
+                  db "|e . . . . . . . . . . |", 0dh, 0ah
+                  db "|f . . . . . . . . . . |", 0dh, 0ah
+                  db "|g . . . . . . . . . . |", 0dh, 0ah
+                  db "|h . . . . . . . . . . |", 0dh, 0ah
+                  db "|i . . . . . . . . . . |", 0dh, 0ah
+                  db "|j . . . . . . . . . . |", 0dh, 0ah
+                  db "x----------------------x", 24h
 
-  
-  chars db 54  ;Cantidad de caracteres por fila
-  espacio db 28  ;Cantidad caracteres antes de la primer columna del tablero usuario
+  letrasBarcos db "PBDSC"
+  tamBarcos db "54233"
+  chars db 26  ;Cantidad de caracteres por fila
   colW db 2   ;Cantidad de caracteres por columna del tablero
 
 .code
@@ -65,6 +78,9 @@ extrn obtenerIndice:proc
 extrn seedInicial:proc
 extrn disparar:proc
 extrn regToAscii:proc
+extrn chequearError:proc
+extrn ubicarBarco:proc
+extrn ponerBarco:proc
 
   main proc
     mov ax, @data
@@ -77,6 +93,24 @@ extrn regToAscii:proc
     mov prevRandInt, ax
     call Clearscreen
 
+    mov ah, 9
+    mov dx, offset msjInicio
+    int 21h
+    
+    mov di, 0
+    mov bx, offset tableroUser
+    ubicarUnBarco:
+    ;Le muestro el tablero
+      cmp di, 5
+      je inicio
+      mov ah, 9
+      mov dx, bx
+      int 21h
+      call pedirBarco
+      inc di
+      call Clearscreen
+      jmp ubicarUnBarco
+
 inicio:
     xor ax, ax
     xor bx, bx
@@ -88,8 +122,6 @@ inicio:
     mov bx, offset tableroMaquina
 
     ; mov bx, offset tablero
-    ; add bl, espacio[0]
-
 
 ; Porta-aviones PPPPP
 ubicarP:
@@ -98,9 +130,14 @@ ubicarP:
     call ElijeHoV
     mov si, ax
     mov al, "P" ;Quiero un porta-aviones
+    mov cl, colW
+    mov ch, chars
     call ubicarBarco
+    mov si, offset bandera
+    call ponerBarco ; Tambien le paso el indice por DI
     cmp bandera[0], 1
     je ubicarP
+    mov dx, offset msjError
     call chequearError
 
 ; Nave de batalla BBBB
@@ -110,9 +147,14 @@ ubicarB:
     call ElijeHoV
     mov si, ax
     mov al, "B" ;Quiero una nave de batalla
+    mov cl, colW
+    mov ch, chars
     call ubicarBarco
+    mov si, offset bandera
+    call ponerBarco ; Tambien le paso el indice por DI
     cmp bandera[0], 1
     je ubicarB
+    mov dx, offset msjError
     call chequearError
 
 ; Destructor DD
@@ -122,9 +164,14 @@ ubicarD:
     call ElijeHoV
     mov si, ax
     mov al, "D" ;Quiero un destructor
+    mov cl, colW
+    mov ch, chars
     call ubicarBarco
+    mov si, offset bandera
+    call ponerBarco ; Tambien le paso el indice por DI
     cmp bandera[0], 1
     je ubicarD
+    mov dx, offset msjError
     call chequearError
 
 ; Submarino SSS
@@ -134,9 +181,14 @@ ubicarS:
     call ElijeHoV
     mov si, ax
     mov al, "S" ;Quiero un submarino
+    mov cl, colW
+    mov ch, chars
     call ubicarBarco
+    mov si, offset bandera
+    call ponerBarco ; Tambien le paso el indice por DI
     cmp bandera[0], 1
     je ubicarS
+    mov dx, offset msjError
     call chequearError
 
 ; Crucero de batalla CCC
@@ -146,29 +198,38 @@ ubicarC:
     call ElijeHoV
     mov si, ax
     mov al, "C" ;Quiero un crucero
+    mov cl, colW
+    mov ch, chars
     call ubicarBarco
+    mov si, offset bandera
+    call ponerBarco ; Tambien le paso el indice por DI
     cmp bandera[0], 1
     je ubicarC
+    mov dx, offset msjError
     call chequearError
   
 imprimir:
-    mov ah, 9
-    mov dx, offset msjIntentos
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset msjIntentos
+    ; int 21h
 
     mov bx, offset IntentosAscii
     mov al, Intentos[0]
     call regToAscii
 
-    mov ah, 9
-    mov dx, offset IntentosAscii
-    int 21h
+    ; mov ah, 9
+    ; mov dx, offset IntentosAscii
+    ; int 21h
 
     ; Imprimir tablero
     mov ah, 9
-    mov dx, offset impTablero
+    mov dx, offset tablero
     int 21h
 
+    ; mov ah, 9
+    ; mov dx, offset tableroMaquina
+
+    ; int 21h
     ;mov ah, 9
     ;mov dx, offset titulo
     ;int 21h
@@ -217,8 +278,14 @@ checkLetra:
     cmp al, 0   ;Hubo un error, no se puede disparar en esa posicion
     je nuevoIntento
     
-    dec Intentos
-    cmp Intentos, 0
+    cmp al, 1
+    je continuar
+
+    cmp al, 2
+    jne nuevoIntento
+
+    dec Intentos[0]
+    cmp Intentos[0], 0
     je fin
 
     jmp continuar
@@ -237,7 +304,7 @@ checkLetra:
     int 21h
     jmp seguir
 
-    ;No ingresï¿½ una posicion vï¿½lida
+    ;No ingreso una posicion valida
   malPos:
     mov ah, 9
     mov dx, offset salto
@@ -251,13 +318,13 @@ checkLetra:
     ;Espero confirmacion del usuario a seguir o salir
     mov ah, 08h   ;Leer sin eco en la pantalla
     int 21h
-    ;Si apretï¿½ <Esc> termino del programa
+    ;Si apreto <Esc> termino del programa
     cmp al, 1Bh
     je fin
-    ;Si apretï¿½ <Enter> vuelvo a pedir que ingrese una posicion valida
+    ;Si apreto <Enter> vuelvo a pedir que ingrese una posicion valida
     cmp al, 0dh
     je seguir
-    ;Si ingresï¿½ cualquier otra cosa sigo esperando
+    ;Si ingreso cualquier otra cosa sigo esperando
     jmp leerTecla
 
   seguir:
@@ -297,126 +364,6 @@ checkLetra:
   ret 
 Clearscreen endp
 
-  ; Recibe en BX el offset del tablero
-  ; en DI la coordenada en X + la coordenada en Y multiplicada por la cantidad de columnas (la posicion correspondiente)
-  ; en DX la cantidad de caracteres por fila (para ubicar verticalmente) o tamaÃ±o de las columnas (para ubicar horizontalmente)
-  ; en AL el caracter para representar el barco
-  ; y en CX el tamanio del barco a colocar
-ponerBarco proc
-  ;Cuido el entorno
-  push ax
-  push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
-  push cx
-  push dx
-  push si
-  push di
-  pushf
-
-    mov si, offset bandera
-    call comprobar_lugar
-    cmp bandera[0], 1
-    je fin_ponerBarco
-
-  barco:
-        mov byte ptr [bx + di], al ; Pongo un simbolo  en la posicion DI del tablero
-        add di, dx ; Le sumo los caracteres que hay por fila para pasar a la fila de abajo
-        loop barco
-
-    fin_ponerBarco:
-    ; mov bandera[0], 0 ;reinicio la bandera
-  popf
-  pop di
-  pop si
-  pop dx
-  pop cx
-  pop bx
-  pop ax
-  ret
-ponerBarco endp
-
-
-; Recibo el simbolo del barco por AL
-; El offset del tablero por BX
-; Las coordenadas por DX
-;y si es horizontal u vertical por SI
-;Devuelve por CX 0 si se le pasï¿½ un simbolo de barco erroneo
-ubicarBarco proc
-;Cuido el entorno
-  push ax
-  push bx
-  push dx
-  push di
-  pushf
-  xor cx, cx
-
-  mov cl, colW
-  mov ch, chars
-  call obtenerIndice ;Me devuelve las coordenadas transformadas en un indice por DI
-
-  mov dx, 0 ; Limpio dx
-  cmp si, 0
-  je horizontal
-  add dl, ch    ; paso el largo de cada fila a DL para que se ubique de forma vertical
-  jmp simbolo
-  horizontal:
-  add dl, cl    ;paso el ancho de cada columna para que sea horizontal
-
-  simbolo:
-  mov cx, 0
-; Porta-aviones PPPPP
-; Nave de batalla BBBB
-; Crucero de batalla CCC
-; Submarino SSS
-; Destructor DD
-  cmp al, "P"
-  je portaAviones
-  cmp al, "B"
-  je naveBatlla
-  cmp al, "C"
-  je crucero
-  cmp al, "S"
-  je submarino
-  cmp al, "D"
-  je destructor
-  ;no era ninguno, es un barco erroneo
-  jmp salir
-
-  portaAviones:
-  add cx, 1   ;Tamanio 5
-  naveBatlla:
-  add cx, 1   ;Tamanio 4
-  crucero:
-  submarino:
-  add cx, 1   ;Ambos de tamanio 3
-  destructor:
-  add cx, 2   ;Tamanio 2
-
-  call ponerBarco ; Tambien le paso el indice por DI
-
-salir:
-  popf
-  pop di
-  pop dx
-  pop bx
-  pop ax
-  ret
-ubicarBarco endp
-
-chequearError proc
-  push ax
-  push dx
-  pushf
-  cmp cx, 0
-  jne finChequeo
-  mov ah, 9
-  mov dx, offset msjError
-  int 21h
-  finChequeo:
-  popf
-  pop dx
-  pop ax
-  ret
-chequearError endp
 
 generarFyC proc
     ;Recibe por AX un seed o 0 para usar el existente
@@ -424,8 +371,13 @@ generarFyC proc
     ;y por DI el offset del numero random anterior
     ;devuelvo en DX la posicion random
     ;cuido el entorno
+    push ax
     push bx
+    push si
+    push di
     pushf
+
+    xor dx, dx
 
     mov ax, seed
     mov si, weylseq
@@ -451,16 +403,19 @@ generarFyC proc
 
     ;devuelvo el entorno
     popf
+    pop di
+    pop si
     pop bx
+    pop ax
     ret
 generarFyC endp
   
-;Elige de forma aleatoria si el barco serï¿½ vertical u horizontal
+;Elige de forma aleatoria si el barco sera vertical u horizontal
 ElijeHoV proc
-  ;Recibe por AX un seed o 0 para usar el existente
-    ; por SI el offset de la secuencia de weyl
-    ;y por DI el offset del numero random anterior
-    ;devuelvo en DX la posicion random
+  ;Recibe por AX un seed
+    ; por SI la secuencia de weyl
+    ; y por DI el numero random anterior
+    ;devuelvo en AL la posicion random
     ;cuido el entorno
     push si
     push dx
@@ -489,5 +444,102 @@ ElijeHoV proc
     pop si
     ret
 ElijeHoV endp
+
+
+; Recibe por BX el offset del tablero
+; por DI el indice de la letra del barco
+pedirBarco proc
+  push ax
+  push bx
+  push cx
+  push dx
+  push di
+  push si
+    
+
+  ubicarBarcoUser:
+    mov bandera[0], 0
+
+    mov ah, 9
+    mov dx, offset msjBarcos
+    int 21h
+
+    mov ah, 2
+    mov dl, letrasBarcos[di]
+    int 21h
+
+    mov ah, 9
+    mov dx, offset msjTam
+    int 21h
+
+    mov ah, 2
+    mov dl, tamBarcos[di]
+    int 21h
+
+    mov ah, 9
+    mov dx, offset salto
+    int 21h
+  
+    mov ah, 9
+    mov dx, offset msjIngreso
+    int 21h
+
+    mov ah, 1
+    int 21h
+    mov dh, al ;la fila est  en DH
+    mov ah, 1
+    int 21h
+    mov dl, al ;la columna est  en DL
+    push dx
+
+    mov ah, 9
+    mov dx, offset salto
+    int 21h
+
+    mov ah, 9
+    mov dx, offset msjOrientacion
+    int 21h
+
+    pop dx
+    mov ah, 1
+    int 21h
+    xor ah, ah
+    mov si, ax ;la orientaci¢n est  en SI
+    sub si, 30h
+
+    mov al, letrasBarcos[di] ;la letra queda guardada en AL
+    mov cl, colW
+    mov ch, chars
+    push di
+    call ubicarBarco
+
+    mov si, offset bandera
+    call ponerBarco ;tambi‚n le paso el ¡ndice por DI
+    pop di
+
+    cmp bandera[0], 1
+    je mensaje
+    jmp finPedirBarco
+
+  mensaje:
+    mov ah, 9
+    mov dx, offset salto
+    int 21h
+    mov ah, 9
+    mov dx, offset msjError
+    int 21h
+    jmp ubicarBarcoUser
+
+  finPedirBarco:
+  pop si
+  pop di
+  pop dx
+  pop cx
+  pop bx
+  pop ax
+  ret
+pedirBarco endp
+
+
 
 end main
