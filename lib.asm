@@ -2,7 +2,6 @@
 .model small
 .stack 100h
 .data
-    ; msj_ocupado db "Lugar no disponible", 0dh, 0ah, 24h
 
 .code
   ;Declaracion de funciones publicas
@@ -10,8 +9,6 @@
   public obtenerIndice
   public seedInicial
   public disparar
-  public regToAscii
-  public chequearError
   public ubicarBarco
   public ponerBarco
 
@@ -64,8 +61,8 @@ obtenerIndice proc
   ret
 obtenerIndice endp
 
+; Genera una semilla a partir de la fecha y hora del sistema, la devuelve por AX
 seedInicial proc
-  ; Genera una semilla a partir de la fecha y hora del sistema, la devuelve por AX
   push bx
   push cx
   push dx
@@ -148,47 +145,6 @@ terminarDisparo:
   ret
 disparar endp
 
-; recibe en AL el numero a convertir
-; recibe en BX el offset de la variable (de dos caracteres/digitos)
-regToAscii proc
-  push ax
-  push bx
-  push cx
-  pushf
-
-  xor ah, ah
-  ;GENERO DECENA
-  mov cl, 10    ; guardo el valor por el que voy a dividir en cl
-  div cl        ; Divido por 10 para obtener la decena
-  add al, 30h   ;Paso a ascii
-  mov [bx+0], al  ;Lo pongo en el bit mas significativo
-
-  ;GENERO UNIDAD
-  add ah, 30h   ;Paso el resto a ascii
-  mov [bx+1], ah   ;Lo guardo en el byte menos significativo
-
-  popf
-  pop cx
-  pop bx
-  pop ax
-  ret
-regToAscii endp
-
-
-chequearError proc
-  push ax
-  push dx
-  pushf
-  cmp cx, 0
-  jne finChequeo
-  mov ah, 9
-  int 21h
-  finChequeo:
-  popf
-  pop dx
-  pop ax
-  ret
-chequearError endp
 
 ; Recibo el simbolo del barco por AL
 ; El offset del tablero por BX
@@ -231,7 +187,7 @@ ubicarBarco proc
   je submarino
   cmp al, "D"
   je destructor
-  ;no era ninguno, es un barco erroneo
+  ;no era ninguno, es un barco erroneo y CX queda en 0
   jmp salir
 
   portaAviones:
@@ -288,10 +244,10 @@ ponerBarco proc
   ret
 ponerBarco endp
 
-comprobar_lugar proc
   ;Por Bx espera el offset del tablero
   ; por DX la cantidad de caracteres por fila o columna.
-    ;creo esta función para no modificar los registros en ponerBarco
+  ;creo esta función para no modificar los registros en ponerBarco
+comprobar_lugar proc
   ;Cuido el entorno
   push ax
   push bx   ; El offset del tablero no me interesa modificarlo asi que por las dudas lo guardo, para no romper nada
@@ -323,5 +279,6 @@ comprobar_lugar proc
   pop ax
   ret
 comprobar_lugar endp
+
 
 end
