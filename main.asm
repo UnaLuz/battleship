@@ -23,8 +23,6 @@
               db "»€€€€€€…º€€∫∞∞€€∫€€∫∞»€€€∫€€∫∞∞€€∫€€€€€€…º∞∞∞€€∫∞∞∞€€€€€€€ª", 0dh, 0ah
               db "∞»ÕÕÕÕÕº∞»Õº∞∞»Õº»Õº∞∞»ÕÕº»Õº∞∞»Õº»ÕÕÕÕÕº∞∞∞∞»Õº∞∞∞»ÕÕÕÕÕÕº", 0dh, 0ah, 24h
 
-
-
   msjPerdiste  db 0dh, 0ah, "PERDISTE!! Que mal... La proxima version le bajamos la dificultad para vos :D!", 0dh, 0ah, 24h
   msjSurrender db "€€€€€€€ª", 0dh, 0ah
                db "€€…ÕÕÕÕº", 0dh, 0ah
@@ -32,7 +30,7 @@
                db "€€…ÕÕº∞∞", 0dh, 0ah
                db "€€∫∞∞∞∞∞", 0dh, 0ah
                db "»Õº∞∞∞∞∞", 0dh, 0ah, 24h
-  
+
   salto db 0dh, 0ah, 24h
   bandera db 0
   Intentos db 17
@@ -119,8 +117,8 @@ extrn ponerBarco:proc
     mov bx, offset tableroUser
     ubicarUnBarco:
     ;Le muestro el tablero
-      cmp di, 5 ;
-      je inicio
+      cmp di, 5 ;Si el contador es 5, entonces significa que se ubicaron los 5 barcos
+      je inicio ;Voy a ubicar los barcos de la compu
       mov ah, 9
       mov dx, bx ;Muevo el offset del tablero
       int 21h
@@ -128,6 +126,9 @@ extrn ponerBarco:proc
       inc di ;Incremento el contador de barcos
       call Clearscreen
       jmp ubicarUnBarco
+
+
+;UBICACI?N DE BARCOS DE LA M?QUINA
 
 inicio:
     xor ax, ax
@@ -139,22 +140,20 @@ inicio:
     
     mov bx, offset tableroMaquina
     
-;UBICACI?N DE BARCOS DE LA M?QUINA
-
   ; Porta-aviones PPPPP
   ubicarP:
     mov bandera[0], 0 ;Reinicio la bandera
     call generarFyC
     call ElijeHoV
-    mov si, ax ;Muevo el valor de la orientaci¢n devuelta por ElijeHoV
+    mov si, ax ;Muevo el valor de la orientaci?n devuelta por ElijeHoV
     mov al, "P" ;Quiero un porta-aviones
     mov cl, colW ;Muevo la cantidad de caracteres por columna del tablero
     mov ch, chars ;Muevo la cantidad de caracteres por fila
     call ubicarBarco
     mov si, offset bandera ;Muevo el offset de la bandera para que pueda activarla, en caso de necesitarlo
-    call ponerBarco ;TambiÇn le paso el indice por DI
-    cmp bandera[0], 1 ;Comparo si se activ¢ la bandera de error
-    je ubicarP ;Si es as°, entonces se ubica de nuevo
+    call ponerBarco ;Tambi?n le paso el indice por DI
+    cmp bandera[0], 1 ;Comparo si se activ? la bandera de error
+    je ubicarP ;Si es as?, entonces se ubica de nuevo
 
   ; Nave de batalla BBBB
   ubicarB:
@@ -225,19 +224,19 @@ imprimir:
 ;DISPARO DEL USUARIO   
 
 ingresoPos:
-    ;Pido que ingrese una posici¢n a atacar
+    ;Pido que ingrese una posici?n a atacar
     mov ah, 9
     mov dx, offset msjIngreso
     int 21h
     ;Leo el primer caracter
     mov ah, 1
     int 21h
-    ;Chequeo que sea una letra v†lida
+    ;Chequeo que sea una letra v?lida
     cmp al, "a"
     jb checkLetra
     cmp al, "j"
     ja malPos
-    ;Es una letra min£scula, la cambio a may£scula
+    ;Es una letra min?scula, la cambio a may?scula
     sub al, 20h
 
 checkLetra:
@@ -245,19 +244,19 @@ checkLetra:
     jb malPos
     cmp al, "J"
     ja malPos
-    ;Es una letra v†lida as° que la guardo el DH
+    ;Es una letra v?lida as? que la guardo el DH
     mov dh, al
     ;Leo el siguiente caracter
     mov ah, 1
     int 21h
-    ;Chequeo que sea un n£mero
+    ;Chequeo que sea un n?mero
     cmp al, "0"
     jb malPos
     cmp al, "9"
     ja malPos
-    ;Es un n£mero v†lido, as° que lo guardo en DL
+    ;Es un n?mero v?lido, as? que lo guardo en DL
     mov dl, al
-    ;Ahora tengo la posici¢n guardada en DX
+    ;Ahora tengo la posici?n guardada en DX
 
     mov cl, colW
     mov ch, chars
@@ -267,7 +266,7 @@ checkLetra:
     mov bx, offset tableroMaquina
     call disparar
     ;Chequeo si el disparo fue exitoso o no
-    cmp al, 0 ;Hubo un error, no se puede disparar en esa posici¢n
+    cmp al, 0 ;Hubo un error, no se puede disparar en esa posici?n
     je nuevoIntento
     
     cmp al, 1
@@ -277,7 +276,7 @@ checkLetra:
     jne nuevoIntento
 
     dec Intentos[0]  ;Intentos guarda la cantidad de disparos existosos restante para ganar. Se decrementa si se efectua un disparo exitoso
-    cmp Intentos[0], 0  ;Si Intentos llega a 0, el jugador obtendr† la victoria
+    cmp Intentos[0], 0  ;Si Intentos llega a 0, el jugador obtendr? la victoria
     je fin_auxiliar
 
     jmp continuar
@@ -297,11 +296,11 @@ checkLetra:
 
     continuar:
     ;Vuelvo a pedir una nueva posicion a disparar
-    mov ah, 08h ;Espero otra tecla sin imprimir en pantalla para que pueda leer la posici¢n ingresada
+    mov ah, 08h ;Espero otra tecla sin imprimir en pantalla para que pueda leer la posici?n ingresada
     int 21h
     jmp seguir
 
-    ;No se ingres¢ una posici¢n v†lida
+    ;No se ingres? una posici?n v?lida
   malPos:
     mov ah, 9
     mov dx, offset salto
@@ -312,7 +311,7 @@ checkLetra:
     int 21h
 
   leerTecla:
-    ;Espero confirmaci¢n del usuario para seguir o salir
+    ;Espero confirmaci?n del usuario para seguir o salir
     mov ah, 08h ;Leer sin eco en la pantalla
     int 21h
     ;Si apreto <Esc> termino del programa
@@ -333,7 +332,7 @@ checkLetra:
     int 21h
 
     mov ah, 9
-    mov dx, offset msjDisparoMaq ;Imprimo un mensaje para avisar que la m†quina est† efectuando un disparo
+    mov dx, offset msjDisparoMaq ;Imprimo un mensaje para avisar que la m?quina est? efectuando un disparo
     int 21h
     
 
@@ -372,7 +371,7 @@ fin:
 
     cmp Intentos[0], 0
     je ganaste 
-    ;quiero creer que si la m†quina no es 0 (ganamos), entonces el nuestro es 0 (perdimos) 
+    ;quiero creer que si la m?quina no es 0 (ganamos), entonces el nuestro es 0 (perdimos) 
     ; ....pues no (?) XD
     cmp IntentosMaq[0], 0
     jne surrender
@@ -552,10 +551,10 @@ pedirBarco proc
 
     mov ah, 1
     int 21h
-    mov dh, al ;la fila est† en DH
+    mov dh, al ;la fila est? en DH
     mov ah, 1
     int 21h
-    mov dl, al ;la columna est† en DL
+    mov dl, al ;la columna est? en DL
     ;Transformamos a mayuscula
     cmp dh, 4Ah ;comparon con J
     jl prosigo
@@ -577,7 +576,7 @@ pedirBarco proc
     mov ah, 1
     int 21h
     xor ah, ah
-    mov si, ax ;la orientaci¢n est† en SI
+    mov si, ax ;la orientaci?n est? en SI
     sub si, 30h
 
     mov al, letrasBarcos[di] ;la letra queda guardada en AL
@@ -587,7 +586,7 @@ pedirBarco proc
     call ubicarBarco
 
     mov si, offset bandera
-    call ponerBarco ;tambiÇn le paso el °ndice por DI
+    call ponerBarco ;tambi?n le paso el ?ndice por DI
     pop di
 
     cmp bandera[0], 1
