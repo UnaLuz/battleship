@@ -15,21 +15,32 @@
   msjDisparoMaq db "The enemy is disparanding. Presione enter para continuar: ", 24h
 
   msjGanaste  db 0dh, 0ah, "Felicitaciones!", 0dh, 0ah
-
-              db "∞€€€€€€ª∞∞€€€€€ª∞€€€ª∞∞€€ª∞€€€€€ª∞∞€€€€€€ª€€€€€€€€ª€€€€€€€ª", 0dh, 0ah
-              db "€€…ÕÕÕÕº∞€€…ÕÕ€€ª€€€€ª∞€€∫€€…ÕÕ€€ª€€…ÕÕÕÕº»ÕÕ€€…ÕÕº€€…ÕÕÕÕº", 0dh, 0ah
-              db "€€∫∞∞€€ª∞€€€€€€€∫€€…€€ª€€∫€€€€€€€∫»€€€€€ª∞∞∞∞€€∫∞∞∞€€€€€ª∞∞", 0dh, 0ah
-              db "€€∫∞∞»€€ª€€…ÕÕ€€∫€€∫»€€€€∫€€…ÕÕ€€∫∞»ÕÕÕ€€ª∞∞∞€€∫∞∞∞€€…ÕÕº∞∞", 0dh, 0ah
-              db "»€€€€€€…º€€∫∞∞€€∫€€∫∞»€€€∫€€∫∞∞€€∫€€€€€€…º∞∞∞€€∫∞∞∞€€€€€€€ª", 0dh, 0ah
-              db "∞»ÕÕÕÕÕº∞»Õº∞∞»Õº»Õº∞∞»ÕÕº»Õº∞∞»Õº»ÕÕÕÕÕº∞∞∞∞»Õº∞∞∞»ÕÕÕÕÕÕº", 0dh, 0ah, 24h
+              ;db ∞€€€€€€ª∞∞€€€€€ª∞€€€ª∞∞€€ª∞€€€€€ª∞∞€€€€€€ª€€€€€€€€ª€€€€€€€ª, 0dh, 0ah
+              ;db €€…ÕÕÕÕº∞€€…ÕÕ€€ª€€€€ª∞€€∫€€…ÕÕ€€ª€€…ÕÕÕÕº»ÕÕ€€…ÕÕº€€…ÕÕÕÕº, 0dh, 0ah
+              ;db €€∫∞∞€€ª∞€€€€€€€∫€€…€€ª€€∫€€€€€€€∫»€€€€€ª∞∞∞∞€€∫∞∞∞€€€€€ª∞∞, 0dh, 0ah
+              ;db €€∫∞∞»€€ª€€…ÕÕ€€∫€€∫»€€€€∫€€…ÕÕ€€∫∞»ÕÕÕ€€ª∞∞∞€€∫∞∞∞€€…ÕÕº∞∞, 0dh, 0ah
+              ;db »€€€€€€…º€€∫∞∞€€∫€€∫∞»€€€∫€€∫∞∞€€∫€€€€€€…º∞∞∞€€∫∞∞∞€€€€€€€ª, 0dh, 0ah
+              ;db ∞»ÕÕÕÕÕº∞»Õº∞∞»Õº»Õº∞∞»ÕÕº»Õº∞∞»Õº»ÕÕÕÕÕº∞∞∞∞»Õº∞∞∞»ÕÕÕÕÕÕº, 0dh, 0ah, 24h
+              db 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0DBh, 0DBh, 0BBh, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0dh, 0ah
+              db 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0B0h, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0C8h, 0CDh, 0CDh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0BCh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0dh, 0ah
+              db 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0DBh, 0DBh, 0BBh, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0C9h, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BAh, 0C8h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0dh, 0ah
+              db 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0C8h, 0DBh, 0DBh, 0BBh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0BAh, 0C8h, 0DBh, 0DBh, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0DBh, 0DBh, 0BAh, 0B0h, 0C8h, 0CDh, 0CDh, 0CDh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0BCh, 0B0h, 0B0h, 0dh, 0ah
+              db 0C8h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0C9h, 0BCh, 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0BAh, 0B0h, 0C8h, 0DBh, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0DBh, 0DBh, 0BAh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0C9h, 0BCh, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0B0h, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0dh, 0ah
+              db 0B0h, 0C8h, 0CDh, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0B0h, 0C8h, 0CDh, 0BCh, 0B0h, 0B0h, 0C8h, 0CDh, 0BCh, 0C8h, 0CDh, 0BCh, 0B0h, 0B0h, 0C8h, 0CDh, 0CDh, 0BCh, 0C8h, 0CDh, 0BCh, 0B0h, 0B0h, 0C8h, 0CDh, 0BCh, 0C8h, 0CDh, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0B0h, 0B0h, 0B0h, 0B0h, 0C8h, 0CDh, 0BCh, 0B0h, 0B0h, 0B0h, 0C8h, 0CDh, 0CDh, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0dh, 0ah, 24h
 
   msjPerdiste  db 0dh, 0ah, "PERDISTE!! Que mal... La proxima version le bajamos la dificultad para vos :D!", 0dh, 0ah, 24h
-  msjSurrender db "€€€€€€€ª", 0dh, 0ah
-               db "€€…ÕÕÕÕº", 0dh, 0ah
-               db "€€€€€ª∞∞", 0dh, 0ah
-               db "€€…ÕÕº∞∞", 0dh, 0ah
-               db "€€∫∞∞∞∞∞", 0dh, 0ah
-               db "»Õº∞∞∞∞∞", 0dh, 0ah, 24h
+              ;db €€€€€€€ª, 0dh, 0ah
+              ;db €€…ÕÕÕÕº, 0dh, 0ah
+              ;db €€€€€ª∞∞, 0dh, 0ah
+              ;db €€…ÕÕº∞∞, 0dh, 0ah
+              ;db €€∫∞∞∞∞∞, 0dh, 0ah
+              ;db »Õº∞∞∞∞∞, 0dh, 0ah, 24h
+  msjSurrender db 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0dh, 0ah
+               db 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0CDh, 0CDh, 0BCh, 0dh, 0ah
+               db 0DBh, 0DBh, 0DBh, 0DBh, 0DBh, 0BBh, 0B0h, 0B0h, 0dh, 0ah
+               db 0DBh, 0DBh, 0C9h, 0CDh, 0CDh, 0BCh, 0B0h, 0B0h, 0dh, 0ah
+               db 0DBh, 0DBh, 0BAh, 0B0h, 0B0h, 0B0h, 0B0h, 0B0h, 0dh, 0ah
+               db 0C8h, 0CDh, 0BCh, 0B0h, 0B0h, 0B0h, 0B0h, 0B0h, 0dh, 0ah, 24h
 
   salto db 0dh, 0ah, 24h
   bandera db 0
