@@ -110,33 +110,38 @@ disparar proc
   push cx
   pushf
 
-  ;Me fijo si es agua
-  cmp byte ptr [bx + di], "."
-  je agua
+    ;Me fijo en el tablero que es visible para el usuario
+    cmp byte ptr [bx + di], "*"   ;Ya se disparó en esa posicion
+    je noDisparo
 
-  cmp byte ptr [bx + di], "*"   ;Ya se disparó en esa posicion
-  je noDisparo
+    cmp byte ptr [bx + di], "#"   ;Hay restos de un barco roto (ya se disparó ahí)
+    je noDisparo
 
-  cmp byte ptr [bx + di], "#"   ;Hay restos de un barco roto (ya se disparó ahí)
-  je noDisparo
-  ;No es agua, le dio a un barco
-  mov cl, "#"
-  mov al, 2
-  jmp disparo
+    ;Si llega hasta acá, el disparo es válido
+    mov dx, bx ;Guardo el valor del tablero del usuario
+    mov bx, si
+    ;Me fijo si es agua en el tablero de la máquina
+    cmp byte ptr [bx + di], "."
+    je agua
+    
+    ;No es agua, le dio a un barco
+    mov cl, "#"
+    mov al, 2
+    jmp disparo
 
   noDisparo:
-  mov al, 0
-  jmp terminarDisparo
+    mov al, 0
+    jmp terminarDisparo
 
   agua:
-  mov cl, "*"
-  mov al, 1
+    mov cl, "*"
+    mov al, 1
 
   disparo:
-  mov byte ptr [bx + di], cl
-  mov bx, si
-  mov byte ptr [bx + di], cl
-terminarDisparo:
+    mov bx, dx
+    mov byte ptr [bx + di], cl ;Sólo cambio el tablero del usuario para no modificar las letras de la máquina
+
+  terminarDisparo:
   popf
   pop cx
   pop si
